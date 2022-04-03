@@ -1,0 +1,46 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+
+
+public class chat_server {
+	public static void main(String[] args) {
+		Socket socket = null; //client와 통신하기 위한 소켓
+		ServerSocket server_socket = null; //서버 생성을 위한 소켓
+		BufferedReader input_data = null; //클라이언트로 부터 데이터를 읽어들이기 위한 입력스트림
+		PrintWriter outgoing = null; // 클라이언트로 데이터를 내보내기 위한 충력 스트림
+		
+		try {          										//에러가 발생할 수 있는 코드
+			server_socket = new ServerSocket();             //메모리 공간 할당하여 server_socket에 참조값 리턴         
+		}catch(IOException e) {     	    				//에러시 수행
+			System.err.println("해당 포트가 존재하고 있습니다.");
+		}
+		try {
+			System.out.println("서버 오픈");
+			socket = server_socket.accept(); //accept()메소드는 server_socket 객체를 반환한다. 
+											 //반환된 연결은 java.net.Socket 객체 형태로 반환되며 클라이언트에서 사용한 것과 같다.
+
+			input_data = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			outgoing = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
+			
+			String client_message = null;
+			client_message = input_data.readLine();
+			
+			System.out.println("Client로 부터 메시지가 도착하였습니다 : " + client_message);
+			
+			outgoing.write(client_message);
+			outgoing.flush();
+			socket.close();
+			
+		}catch (Exception e) {
+			System.out.println("Client와 연결이 원활하지 않습니다.");
+		}
+	}
+
+}
