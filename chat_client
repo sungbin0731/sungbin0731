@@ -1,0 +1,47 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+//import java.nio.Buffer;
+
+
+
+public class chat_client {
+	public static void main(String[] args) {
+		Socket socket = null; //서버와 통신하기 위한 소켓
+		BufferedReader input_stream = null; // 서버로부터 데이터를 읽어들이기 위한 스트림
+		BufferedReader keyboard_input = null;// 키보드로부터 읽어드리이기 위한 입력 스트림
+		PrintWriter outgoing = null; // 입력된 정보들을 outgoing 하기 위해 사용한 print() 보조 스트림
+		InetAddress address = null; // 인터넷 주소에 관한 정보를 가진다.
+		
+		try {
+			address = InetAddress.getByName(null); //서버 주소 입력
+			socket = new Socket(address,9999); //서버가 열어놓은 포트 입력
+			input_stream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			keyboard_input = new BufferedReader(new InputStreamReader(System.in));
+			outgoing = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
+			
+			System.out.println(socket.getOutputStream());
+		}catch(IOException e) {
+			System.out.println("포트가 열려있지 않습니다.");
+		}
+		
+		try { //여러개의 문자를 한번에 보내기 위해서는 for문을 사용해야 할것 같다..
+			System.out.println("서버로부터 보낼 메시지를 입력하세요 : ");
+			String data = keyboard_input.readLine();  //키보드로부터 입력
+			outgoing.println(data); // 서버로 데이터 전송
+			outgoing.flush();
+			
+			String server_retrun_msg_reader = input_stream.readLine(); //서버로부터 되돌아노는 데이터 읽기
+			System.out.println("서버로부터 되돌아온 메시지 : " + server_retrun_msg_reader);
+			socket.close();
+		}catch (Exception e) {
+			
+		}
+		
+	}
+}
