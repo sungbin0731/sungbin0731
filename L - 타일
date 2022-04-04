@@ -1,0 +1,103 @@
+#include <iostream>
+#include <utility>
+#include <math.h>
+
+using namespace std;
+
+int board[1024][1024]; //2^10 * 2^10
+int tileNo = 0; //타일 번호
+
+void fillCornersExcept(int mrow, int mcol, int flag) {
+
+	//구멍이 있는 사분면을 제외한 나머지 가운데 모서리들 색칠 
+
+	tileNo+=1;
+
+	if (flag != 1)
+		board[mrow - 1][mcol - 1] = tileNo;
+	if (flag != 2)
+		board[mrow - 1][mcol] = tileNo;
+	if (flag != 3)
+		board[mrow][mcol - 1] = tileNo;
+	if (flag != 4)
+		board[mrow][mcol] = tileNo;
+
+	return;
+}
+
+
+//트로미노 타일링 알고리즘
+void tronimo( int srow, int scol, int size, pair<int, int> hole) {
+
+	//base case
+	if (size == 1) return;
+
+	int mrow = srow + size / 2;
+	int mcol = scol + size / 2;
+
+	//각 사분면에 구멍이 없는 경우
+	//그 사분면에서의 구멍의 좌표 = 각 사분면에서의 가운데 모서리의 좌표
+	pair <int, int> hole1 = make_pair(mrow - 1, mcol - 1);
+	pair <int, int> hole2 = make_pair(mrow - 1, mcol);
+	pair <int, int> hole3 = make_pair(mrow, mcol - 1);
+	pair <int, int> hole4 = make_pair(mrow, mcol);
+
+	//사분면에 구멍이 있는 경우
+	//그 사분면에서의 구멍의 좌표 = 기존 구멍의 좌표
+	if (hole.first < mrow && hole.second < mcol) {
+		fillCornersExcept(mrow, mcol, 1);
+
+		hole1.first = hole.first;
+		hole1.second = hole.second;
+	}
+	if (hole.first < mrow && hole.second >= mcol) {
+		fillCornersExcept(mrow, mcol, 2);
+
+		hole2.first = hole.first;
+		hole2.second = hole.second;
+	}
+	if (hole.first >= mrow && hole.second < mcol) {
+		fillCornersExcept(mrow, mcol, 3);
+
+		hole3.first = hole.first;
+		hole3.second = hole.second;
+	}
+	if (hole.first >= mrow && hole.second >= mcol) {
+		fillCornersExcept(mrow, mcol, 4);
+
+		hole4.first = hole.first;
+		hole4.second = hole.second;
+	}
+
+	//재귀 호출
+	tronimo(srow, scol, size / 2, hole1);
+	tronimo(srow, mcol, size / 2, hole2);
+	tronimo(mrow, scol, size / 2, hole3);
+	tronimo(mrow, mcol, size / 2, hole4);
+
+	return;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+
+	int k;     // 2의 k승
+	int x, y;  // x행 y열
+	cin >> k;
+	int size = pow(2, k);  // 2의 k승
+	cin >> x >> y;
+
+	board[size - y + 1][x] = 0;  // 비어 있는 셀
+	tronimo(1, 1, size, make_pair(x, y));
+
+	for (int i = 1; i <= size; ++i) {
+		for (int j = 1; j <= size; ++j) {
+			cout << board[i][j] << " ";
+		}
+		cout << "\n";
+	}
+
+	return 0;
+}
